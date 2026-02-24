@@ -364,19 +364,42 @@ export default function PropertyDetails() {
 
       {/* Similar Properties */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 relative z-10">
-        <div className="flex justify-between items-end mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Similar Properties</h2>
-            <p className="text-gray-600">You might also be interested in these properties</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              {property.category === 'Vehicles' ? 'Similar Vehicles' : 'Similar Properties'}
+            </h2>
+            <p className="text-gray-600">You might also be interested in these listings</p>
           </div>
-          <Link to="/properties" className="hidden md:flex items-center gap-2 text-emerald-600 font-semibold hover:text-emerald-700">
+          <Link 
+            to="/properties" 
+            state={{ category: property.category }}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-50 text-emerald-700 rounded-lg font-bold hover:bg-emerald-100 transition-colors shadow-sm"
+          >
             View All <ArrowLeft className="h-5 w-5 rotate-180" />
           </Link>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {properties
-            .filter(p => p.id !== property.id && (p.type === property.type || p.location.includes(property.location.split(',')[0])))
+            .filter(p => {
+              if (p.id === property.id) return false;
+              if (p.category !== property.category) return false;
+              
+              // For Real Estate: Match Type OR Location
+              if (property.category === 'Real Estate') {
+                return p.type === property.type || p.location.includes(property.location.split(',')[0]);
+              }
+              
+              // For Vehicles: Match Type (e.g. Car vs Car)
+              return p.type === property.type;
+            })
+            .sort((a, b) => {
+              // Prioritize exact type match
+              if (a.type === property.type && b.type !== property.type) return -1;
+              if (a.type !== property.type && b.type === property.type) return 1;
+              return 0;
+            })
             .slice(0, 3)
             .map((similarProperty) => (
               <PropertyCard key={similarProperty.id} property={similarProperty} />

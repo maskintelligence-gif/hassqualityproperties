@@ -1,12 +1,25 @@
 export interface Property {
   id: string;
+  category: 'Real Estate' | 'Vehicles';
   title: string;
   price: string;
   location: string;
-  type: 'House' | 'Land' | 'Commercial' | 'Apartment';
+  type: 'House' | 'Land' | 'Commercial' | 'Apartment' | 'Car' | 'Motorcycle' | 'Truck';
+  
+  // Real Estate specific
   bedrooms?: number;
   bathrooms?: number;
-  area: string;
+  area?: string;
+  
+  // Vehicle specific
+  make?: string;
+  model?: string;
+  year?: number;
+  mileage?: string;
+  transmission?: 'Automatic' | 'Manual';
+  fuelType?: 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid';
+
+  // Common
   imageUrl: string;
   images?: string[];
   videoUrl?: string;
@@ -18,6 +31,7 @@ export interface Property {
 export const properties: Property[] = [
   {
     id: '1',
+    category: 'Real Estate',
     title: 'Modern Family Home in Booma',
     price: 'UGX 450,000,000',
     location: 'Booma, Fort Portal',
@@ -39,6 +53,7 @@ export const properties: Property[] = [
   },
   {
     id: '2',
+    category: 'Real Estate',
     title: 'Prime Commercial Plot',
     price: 'UGX 150,000,000',
     location: 'Fort Portal City Center',
@@ -51,6 +66,7 @@ export const properties: Property[] = [
   },
   {
     id: '3',
+    category: 'Real Estate',
     title: 'Luxury Apartment with Mountain View',
     price: 'UGX 1,500,000 / Month',
     location: 'Boma, Fort Portal',
@@ -65,6 +81,7 @@ export const properties: Property[] = [
   },
   {
     id: '4',
+    category: 'Real Estate',
     title: 'Farm Land in Kyenjojo',
     price: 'UGX 25,000,000 per Acre',
     location: 'Kyenjojo District',
@@ -77,6 +94,7 @@ export const properties: Property[] = [
   },
   {
     id: '5',
+    category: 'Real Estate',
     title: 'Colonial Style Bungalow',
     price: 'UGX 380,000,000',
     location: 'Kabarole Hill',
@@ -91,6 +109,7 @@ export const properties: Property[] = [
   },
   {
     id: '6',
+    category: 'Real Estate',
     title: 'Lake View Resort Land',
     price: 'UGX 800,000,000',
     location: 'Crater Lakes Region',
@@ -98,6 +117,60 @@ export const properties: Property[] = [
     area: '5 Acres',
     imageUrl: 'https://images.unsplash.com/photo-1449156493391-d2cfa28e468b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     description: 'Exclusive land overlooking one of the crater lakes. Perfect for an eco-lodge or luxury resort development.',
+    featured: true,
+    status: 'For Sale'
+  },
+  {
+    id: '7',
+    category: 'Vehicles',
+    title: 'Toyota Land Cruiser Prado TX',
+    price: 'UGX 120,000,000',
+    location: 'Fort Portal City Center',
+    type: 'Car',
+    make: 'Toyota',
+    model: 'Land Cruiser Prado',
+    year: 2015,
+    mileage: '85,000 km',
+    transmission: 'Automatic',
+    fuelType: 'Diesel',
+    imageUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    description: 'Excellent condition Toyota Land Cruiser Prado TX. Perfect for both city driving and upcountry terrain. Fully serviced with new tires.',
+    featured: true,
+    status: 'For Sale'
+  },
+  {
+    id: '8',
+    category: 'Vehicles',
+    title: 'Subaru Forester XT',
+    price: 'UGX 45,000,000',
+    location: 'Booma, Fort Portal',
+    type: 'Car',
+    make: 'Subaru',
+    model: 'Forester',
+    year: 2012,
+    mileage: '110,000 km',
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    imageUrl: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    description: 'Well-maintained Subaru Forester XT. Great family car with AWD capability. Clean interior and exterior.',
+    featured: false,
+    status: 'For Sale'
+  },
+  {
+    id: '9',
+    category: 'Vehicles',
+    title: 'Yamaha YZ250F Dirt Bike',
+    price: 'UGX 15,000,000',
+    location: 'Kabarole',
+    type: 'Motorcycle',
+    make: 'Yamaha',
+    model: 'YZ250F',
+    year: 2019,
+    mileage: '2,500 km',
+    transmission: 'Manual',
+    fuelType: 'Petrol',
+    imageUrl: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    description: 'High-performance dirt bike, perfect for off-road trails around the crater lakes. Recently serviced and ready to ride.',
     featured: true,
     status: 'For Sale'
   }

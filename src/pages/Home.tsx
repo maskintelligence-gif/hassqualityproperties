@@ -59,14 +59,9 @@ export default function Home() {
       {/* Featured Properties */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Featured Properties</h2>
-              <p className="text-gray-600">Handpicked selection of our best properties</p>
-            </div>
-            <Link to="/properties" className="hidden md:flex items-center gap-2 text-emerald-600 font-semibold hover:text-emerald-700">
-              View All <ArrowRight className="h-5 w-5" />
-            </Link>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Properties</h2>
+            <p className="text-gray-600 text-lg">Handpicked selection of our best properties</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -75,8 +70,11 @@ export default function Home() {
             ))}
           </div>
           
-          <div className="mt-12 text-center md:hidden">
-            <Link to="/properties" className="inline-flex items-center gap-2 text-emerald-600 font-semibold hover:text-emerald-700">
+          <div className="mt-16 text-center">
+            <Link 
+              to="/properties" 
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-600 text-white rounded-full font-bold text-lg hover:bg-emerald-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
+            >
               View All Properties <ArrowRight className="h-5 w-5" />
             </Link>
           </div>

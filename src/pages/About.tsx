@@ -72,8 +72,8 @@ export default function About() {
         <div className="bg-emerald-900 rounded-3xl p-12 text-white text-center">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
-              <div className="text-4xl font-bold mb-2">5+</div>
-              <div className="text-emerald-200 text-sm uppercase tracking-wider">Years Experience</div>
+              <div className="text-4xl font-bold mb-2">11+</div>
+              <div className="text-emerald-200 text-sm uppercase tracking-wider">Years of Experience</div>
             </div>
             <div>
               <div className="text-4xl font-bold mb-2">100+</div>
