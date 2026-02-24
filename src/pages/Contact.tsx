@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone, Send } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, Facebook, Instagram, Twitter } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
 
 import { useState, ChangeEvent, FormEvent } from 'react';
@@ -96,16 +96,15 @@ export default function Contact() {
               <div className="mt-12">
                 <h3 className="font-semibold text-gray-900 text-lg mb-4">Follow Us</h3>
                 <div className="flex gap-4">
-                  {/* Social icons placeholders */}
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
-                    <span className="font-bold">fb</span>
-                  </div>
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
-                    <span className="font-bold">ig</span>
-                  </div>
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
-                    <span className="font-bold">tw</span>
-                  </div>
+                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
+                    <Facebook className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
+                    <Instagram className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
+                    <Twitter className="h-5 w-5" />
+                  </a>
                 </div>
               </div>
             </div>

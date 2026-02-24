@@ -8,6 +8,7 @@ export interface Property {
   bathrooms?: number;
   area: string;
   imageUrl: string;
+  images?: string[];
   description: string;
   featured: boolean;
   status: 'For Sale' | 'For Rent';
@@ -24,6 +25,12 @@ export const properties: Property[] = [
     bathrooms: 3,
     area: '25 Decimals',
     imageUrl: 'https://images.unsplash.com/photo-1600596542815-2250657d2fc5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1600596542815-2250657d2fc5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1600607687931-cebf0746e50e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'
+    ],
     description: 'A beautiful modern family home located in the upscale Booma residential area. Features spacious living areas, a modern kitchen, and a well-maintained garden.',
     featured: true,
     status: 'For Sale'

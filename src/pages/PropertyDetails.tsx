@@ -1,12 +1,46 @@
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { properties } from '../data/properties';
-import { MapPin, Bed, Bath, Maximize, Check, ArrowLeft, Phone, Mail, Building2 } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize, Check, ArrowLeft, Phone, Mail, Building2, ChevronLeft, ChevronRight, X, Download } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
 
 
 export default function PropertyDetails() {
   const { id } = useParams();
   const property = properties.find(p => p.id === id);
+  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  const images = property?.images || [property?.imageUrl];
+
+  const handleNextImage = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrevImage = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleDownload = async (imageUrl: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `property-${property?.id}-image-${currentImageIndex + 1}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+    }
+  };
 
   if (!property) {
     return (
@@ -23,36 +57,125 @@ export default function PropertyDetails() {
 
   return (
     <div className="bg-gray-50 min-h-screen pb-20">
-      {/* Image Header */}
-      <div className="h-[50vh] relative">
-        <img 
-          src={property.imageUrl} 
-          alt={property.title} 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div>
-                <span className="inline-block px-3 py-1 bg-emerald-600 text-white rounded-full text-sm font-semibold mb-3 uppercase tracking-wide">
-                  {property.status}
-                </span>
-                <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{property.title}</h1>
-                <div className="flex items-center gap-2 text-gray-200 text-lg">
-                  <MapPin className="h-5 w-5" />
-                  {property.location}
-                </div>
-              </div>
-              <div className="text-white">
-                <p className="text-3xl font-bold">{property.price}</p>
+      {/* Image Gallery */}
+      <div className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+            <div>
+              <span className="inline-block px-3 py-1 bg-emerald-600 text-white rounded-full text-sm font-semibold mb-3 uppercase tracking-wide">
+                {property.status}
+              </span>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{property.title}</h1>
+              <div className="flex items-center gap-2 text-gray-600 text-lg">
+                <MapPin className="h-5 w-5" />
+                {property.location}
               </div>
             </div>
+            <div className="text-emerald-600">
+              <p className="text-3xl font-bold">{property.price}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[60vh]">
+            {/* Main Image */}
+            <div 
+              className={`relative rounded-xl overflow-hidden cursor-pointer group ${images.length > 1 ? 'md:col-span-3' : 'md:col-span-4'}`}
+              onClick={() => setIsLightboxOpen(true)}
+            >
+              <img 
+                src={images[0]} 
+                alt={property.title} 
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="bg-white/90 text-gray-900 px-4 py-2 rounded-full font-medium flex items-center gap-2">
+                  <Maximize className="h-4 w-4" /> View Fullscreen
+                </span>
+              </div>
+            </div>
+
+            {/* Thumbnails */}
+            {images.length > 1 && (
+              <div className="hidden md:grid grid-rows-3 gap-4 h-full">
+                {images.slice(1, 4).map((img, idx) => (
+                  <div 
+                    key={idx} 
+                    className="relative rounded-xl overflow-hidden cursor-pointer group"
+                    onClick={() => {
+                      setCurrentImageIndex(idx + 1);
+                      setIsLightboxOpen(true);
+                    }}
+                  >
+                    <img 
+                      src={img} 
+                      alt={`${property.title} - Image ${idx + 2}`} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    {idx === 2 && images.length > 4 && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <span className="text-white font-bold text-xl">+{images.length - 4}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10">
+      {/* Lightbox */}
+      {isLightboxOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
+          <button 
+            onClick={() => setIsLightboxOpen(false)}
+            className="absolute top-6 right-6 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors z-50"
+          >
+            <X className="h-8 w-8" />
+          </button>
+          
+          <button 
+            onClick={(e) => handleDownload(images[currentImageIndex], e)}
+            className="absolute top-6 right-20 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors z-50 flex items-center gap-2"
+            title="Download Image"
+          >
+            <Download className="h-6 w-6" />
+          </button>
+
+          <div className="absolute top-6 left-6 text-white/70 font-medium z-50">
+            {currentImageIndex + 1} / {images.length}
+          </div>
+
+          {images.length > 1 && (
+            <>
+              <button 
+                onClick={handlePrevImage}
+                className="absolute left-6 text-white/70 hover:text-white p-3 rounded-full hover:bg-white/10 transition-colors z-50"
+              >
+                <ChevronLeft className="h-10 w-10" />
+              </button>
+              
+              <button 
+                onClick={handleNextImage}
+                className="absolute right-6 text-white/70 hover:text-white p-3 rounded-full hover:bg-white/10 transition-colors z-50"
+              >
+                <ChevronRight className="h-10 w-10" />
+              </button>
+            </>
+          )}
+
+          <div className="w-full h-full flex items-center justify-center p-4 md:p-12" onClick={() => setIsLightboxOpen(false)}>
+            <img 
+              src={images[currentImageIndex]} 
+              alt={`${property.title} - Fullscreen`} 
+              className="max-w-full max-h-full object-contain select-none"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
