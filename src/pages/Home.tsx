@@ -1,13 +1,33 @@
-import { ArrowRight, CheckCircle2, Search } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Search, Star } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
 
 import { Link } from 'react-router-dom';
+import { useRef, useEffect } from 'react';
 import { properties } from '../data/properties';
+import { testimonials } from '../data/testimonials';
 import PropertyCard from '../components/PropertyCard';
 import PropertyGallery from '../components/PropertyGallery';
 
 export default function Home() {
   const featuredProperties = properties.filter(p => p.featured).slice(0, 3);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const scrollAmount = container.clientWidth;
+        
+        if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+          container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+      }
+    }, 5000); // Auto-scroll every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -45,7 +65,7 @@ export default function Home() {
               Contact Us
             </Link>
             <a
-              href="https://wa.me/256700000000"
+              href="https://wa.me/25677186354"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-4 bg-green-500 hover:bg-green-600 text-white rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
@@ -123,6 +143,64 @@ export default function Home() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Client Testimonials */}
+      <section className="py-20 bg-emerald-50 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What Our Clients Say</h2>
+            <p className="text-gray-600 text-lg">Don't just take our word for it</p>
+          </div>
+          
+          <div 
+            ref={scrollContainerRef}
+            className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 no-scrollbar"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {testimonials.slice(0, 10).map((testimonial) => (
+              <div 
+                key={testimonial.id} 
+                className="min-w-[100%] md:min-w-[calc(50%-12px)] lg:min-w-[calc(33.333%-16px)] snap-center bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative mt-6"
+              >
+                <div className="absolute -top-6 left-8">
+                  <img 
+                    src={testimonial.image} 
+                    alt={testimonial.name}
+                    className="w-14 h-14 rounded-full border-4 border-white shadow-md object-cover bg-gray-100"
+                  />
+                </div>
+                <div className="mt-8">
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-gray-600 italic mb-6 line-clamp-4">"{testimonial.quote}"</p>
+                  <div>
+                    <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
+                    <p className="text-emerald-600 text-sm font-medium">{testimonial.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link 
+              to="/testimonials" 
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-emerald-700 border-2 border-emerald-600 rounded-full font-bold text-lg hover:bg-emerald-50 transition-all shadow-sm hover:shadow-md w-full sm:w-auto"
+            >
+              Read More Success Stories <ArrowRight className="h-5 w-5" />
+            </Link>
+            <Link 
+              to="/testimonials" 
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-600 text-white rounded-full font-bold text-lg hover:bg-emerald-700 transition-all shadow-sm hover:shadow-md w-full sm:w-auto"
+            >
+              Share Your Story
+            </Link>
           </div>
         </div>
       </section>

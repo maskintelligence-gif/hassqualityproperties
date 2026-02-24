@@ -1,5 +1,6 @@
 import { Home, Building2, Phone, Mail, MapPin, Menu, X, Facebook, Instagram, Twitter } from 'lucide-react';
 import WhatsAppIcon from './WhatsAppIcon';
+import CompanyLogo from './CompanyLogo';
 
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -14,6 +15,7 @@ export default function Navbar() {
     { name: 'Home', path: '/' },
     { name: 'Properties', path: '/properties' },
     { name: 'About Us', path: '/about' },
+    { name: 'Testimonials', path: '/testimonials' },
     { name: 'Contact', path: '/contact' },
   ];
 
@@ -23,7 +25,7 @@ export default function Navbar() {
         <div className="flex justify-between h-20">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-              <Building2 className="h-8 w-8 text-emerald-600" />
+              <CompanyLogo className="h-12 w-auto object-contain" />
               <div className="flex flex-col">
                 <span className="font-bold text-xl tracking-tight text-gray-900">HASS QUALITY</span>
                 <span className="text-xs font-semibold tracking-widest text-emerald-600">PROPERTIES</span>
@@ -53,7 +55,7 @@ export default function Navbar() {
               Get in Touch
             </Link>
             <a
-              href="https://wa.me/256700000000"
+              href="https://wa.me/25677186354"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-green-500 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-green-600 transition-colors shadow-sm flex items-center gap-2"
@@ -93,7 +95,7 @@ export default function Navbar() {
               </Link>
             ))}
             <a
-              href="https://wa.me/256700000000"
+              href="https://wa.me/25677186354"
               target="_blank"
               rel="noopener noreferrer"
               className="block px-3 py-2 rounded-md text-base font-medium bg-green-500 text-white hover:bg-green-600 transition-colors mt-2"

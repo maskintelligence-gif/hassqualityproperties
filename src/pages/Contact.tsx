@@ -1,5 +1,6 @@
-import { Mail, MapPin, Phone, Send, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, Facebook, Instagram, Twitter, Youtube, Linkedin, ExternalLink } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
+import TiktokIcon from '../components/TiktokIcon';
 
 import { useState, ChangeEvent, FormEvent } from 'react';
 
@@ -51,10 +52,18 @@ export default function Contact() {
                   <div className="bg-white p-3 rounded-full shadow-sm text-emerald-600">
                     <MapPin className="h-6 w-6" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 text-lg mb-1">Our Location</h3>
                     <p className="text-gray-600">Fort Portal Tourism City</p>
-                    <p className="text-gray-600">Uganda</p>
+                    <p className="text-gray-600 mb-3">Uganda</p>
+                    <a 
+                      href="https://maps.google.com/?q=Fort+Portal+Tourism+City+Uganda" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-semibold hover:bg-emerald-200 transition-colors"
+                    >
+                      View on Map <ExternalLink className="h-4 w-4" />
+                    </a>
                   </div>
                 </div>
 
@@ -62,10 +71,14 @@ export default function Contact() {
                   <div className="bg-white p-3 rounded-full shadow-sm text-emerald-600">
                     <Mail className="h-6 w-6" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 text-lg mb-1">Email Us</h3>
-                    <a href="mailto:hassqualityproperties@gmail.com" className="text-gray-600 hover:text-emerald-600 transition-colors break-all">
-                      hassqualityproperties@gmail.com
+                    <p className="text-gray-600 break-all mb-3">hassqualityproperties@gmail.com</p>
+                    <a 
+                      href="mailto:hassqualityproperties@gmail.com" 
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-semibold hover:bg-emerald-200 transition-colors"
+                    >
+                      Send Email <Mail className="h-4 w-4" />
                     </a>
                   </div>
                 </div>
@@ -74,20 +87,32 @@ export default function Contact() {
                   <div className="bg-white p-3 rounded-full shadow-sm text-emerald-600">
                     <Phone className="h-6 w-6" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 text-lg mb-1">Call Us</h3>
-                    <p className="text-gray-600">+256 700 000 000</p>
-                    <p className="text-gray-500 text-sm mt-1">Mon - Sat: 8:00 AM - 6:00 PM</p>
+                    <p className="text-gray-600">+256 771 86354</p>
+                    <p className="text-gray-500 text-sm mt-1 mb-3">Mon - Sat: 8:00 AM - 6:00 PM</p>
+                    <a 
+                      href="tel:+25677186354" 
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-semibold hover:bg-emerald-200 transition-colors"
+                    >
+                      Call Now <Phone className="h-4 w-4" />
+                    </a>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <div className="bg-white p-3 rounded-full shadow-sm text-emerald-600">
                     <WhatsAppIcon className="h-6 w-6" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 text-lg mb-1">WhatsApp Us</h3>
-                    <a href="https://wa.me/256700000000" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-emerald-600 transition-colors break-all">
-                      +256 700 000 000
+                    <p className="text-gray-600 break-all mb-3">+256 771 86354</p>
+                    <a 
+                      href="https://wa.me/25677186354" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-semibold hover:bg-green-200 transition-colors"
+                    >
+                      Message on WhatsApp <WhatsAppIcon className="h-4 w-4" />
                     </a>
                   </div>
                 </div>
@@ -95,7 +120,7 @@ export default function Contact() {
 
               <div className="mt-12">
                 <h3 className="font-semibold text-gray-900 text-lg mb-4">Follow Us</h3>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                   <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
                     <Facebook className="h-5 w-5" />
                   </a>
@@ -104,6 +129,15 @@ export default function Contact() {
                   </a>
                   <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
                     <Twitter className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
+                    <TiktokIcon className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
+                    <Youtube className="h-5 w-5" />
+                  </a>
+                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-600 hover:text-white transition-all">
+                    <Linkedin className="h-5 w-5" />
                   </a>
                 </div>
               </div>

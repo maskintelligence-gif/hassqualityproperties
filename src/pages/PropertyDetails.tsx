@@ -38,6 +38,7 @@ export default function PropertyDetails() {
     if (e) e.stopPropagation();
     try {
       const response = await fetch(imageUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -48,7 +49,8 @@ export default function PropertyDetails() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading image:', error);
+      console.error('Error downloading image, falling back to new tab:', error);
+      window.open(imageUrl, '_blank');
     }
   };
 
@@ -325,37 +327,86 @@ export default function PropertyDetails() {
 
           {/* Sidebar */}
           <div className="space-y-8">
+            {/* Map Preview (Static) */}
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+              <div className="p-4 border-b border-gray-100">
+                <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-emerald-600" /> Location
+                </h3>
+              </div>
+              <div className="h-48 bg-gray-200 relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                  alt="Map Location" 
+                  className="w-full h-full object-cover opacity-80"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg text-sm font-semibold text-gray-800">
+                    {property.location}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-100 sticky top-24">
               <h3 className="text-xl font-bold text-gray-900 mb-6">Interested in this property?</h3>
               
-              <div className="space-y-6">
+              <form className="space-y-4 mb-6" onSubmit={(e) => e.preventDefault()}>
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input 
+                    type="text" 
+                    id="name"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                    placeholder="John Doe"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                  <input 
+                    type="tel" 
+                    id="phone"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                    placeholder="+256 771 86354"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Preferred Viewing Date</label>
+                  <input 
+                    type="date" 
+                    id="date"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  className="w-full py-3 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-colors shadow-md"
+                >
+                  Request Viewing
+                </button>
+              </form>
+
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-gray-200"></div>
+                <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">Or contact us directly</span>
+                <div className="flex-grow border-t border-gray-200"></div>
+              </div>
+
+              <div className="space-y-3">
                 <a 
-                  href="tel:+256700000000"
-                  className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-colors"
+                  href="tel:+25677186354"
+                  className="flex items-center justify-center gap-3 w-full py-3 bg-gray-50 text-gray-700 rounded-lg font-semibold hover:bg-gray-100 transition-colors border border-gray-200"
                 >
                   <Phone className="h-5 w-5" /> Call Agent
                 </a>
-                
                 <a 
-                  href={`mailto:hassqualityproperties@gmail.com?subject=Inquiry about ${property.title}`}
-                  className="flex items-center justify-center gap-3 w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-lg font-bold hover:bg-emerald-50 transition-colors"
-                >
-                  <Mail className="h-5 w-5" /> Email Us
-                </a>
-                <a 
-                  href="https://wa.me/256700000000"
+                  href="https://wa.me/25677186354"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-3 w-full py-4 bg-green-500 text-white rounded-lg font-bold hover:bg-green-600 transition-colors"
+                  className="flex items-center justify-center gap-3 w-full py-3 bg-green-50 text-green-700 rounded-lg font-semibold hover:bg-green-100 transition-colors border border-green-200"
                 >
                   <WhatsAppIcon className="h-5 w-5" /> WhatsApp
                 </a>
-              </div>
-
-              <div className="mt-8 pt-8 border-t border-gray-100">
-                <p className="text-sm text-gray-500 text-center mb-4">
-                  Or visit our office in Fort Portal Tourism City
-                </p>
               </div>
             </div>
           </div>

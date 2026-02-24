@@ -1,5 +1,7 @@
-import { Building2, Mail, MapPin, Phone, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Building2, Mail, MapPin, Phone, Facebook, Instagram, Twitter, Youtube, Linkedin } from 'lucide-react';
 import WhatsAppIcon from './WhatsAppIcon';
+import TiktokIcon from './TiktokIcon';
+import CompanyLogo from './CompanyLogo';
 
 import { Link } from 'react-router-dom';
 
@@ -10,15 +12,18 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Company Info */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Building2 className="h-6 w-6 text-emerald-500" />
-              <span className="font-bold text-xl tracking-tight">HASS QUALITY PROPERTIES</span>
+            <div className="flex items-center gap-3 mb-6">
+              <CompanyLogo className="h-14 w-auto object-contain bg-white/10 rounded-lg p-1" />
+              <div className="flex flex-col">
+                <span className="font-bold text-xl tracking-tight text-white">HASS QUALITY</span>
+                <span className="text-xs font-semibold tracking-widest text-emerald-500">PROPERTIES</span>
+              </div>
             </div>
-            <p className="text-gray-400 mb-4 text-sm leading-relaxed">
+            <p className="text-gray-400 mb-6 text-sm leading-relaxed">
               Your trusted partner in finding the perfect property in Fort Portal Tourism City and across Uganda. 
               We specialize in residential, commercial, and land sales.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-4">
               <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
@@ -27,6 +32,15 @@ export default function Footer() {
               </a>
               <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
                 <Twitter className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
+                <TiktokIcon className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
+                <Youtube className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
+                <Linkedin className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -43,6 +57,9 @@ export default function Footer() {
               </li>
               <li>
                 <Link to="/about" className="text-gray-400 hover:text-white transition-colors text-sm">About Us</Link>
+              </li>
+              <li>
+                <Link to="/testimonials" className="text-gray-400 hover:text-white transition-colors text-sm">Testimonials</Link>
               </li>
               <li>
                 <Link to="/contact" className="text-gray-400 hover:text-white transition-colors text-sm">Contact</Link>
@@ -66,12 +83,12 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                <span className="text-gray-400 text-sm">+256 700 000 000</span>
+                <span className="text-gray-400 text-sm">+256 771 86354</span>
               </li>
               <li className="flex items-center gap-3">
                 <WhatsAppIcon className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                <a href="https://wa.me/256700000000" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  +256 700 000 000
+                <a href="https://wa.me/25677186354" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  +256 771 86354
                 </a>
               </li>
             </ul>
