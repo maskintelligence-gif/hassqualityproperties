@@ -4,6 +4,7 @@ import WhatsAppIcon from '../components/WhatsAppIcon';
 import { Link } from 'react-router-dom';
 import { properties } from '../data/properties';
 import PropertyCard from '../components/PropertyCard';
+import PropertyGallery from '../components/PropertyGallery';
 
 export default function Home() {
   const featuredProperties = properties.filter(p => p.featured).slice(0, 3);
@@ -81,6 +82,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Property Gallery */}
+      <PropertyGallery />
 
       {/* Why Choose Us */}
       <section className="py-20 bg-white">
