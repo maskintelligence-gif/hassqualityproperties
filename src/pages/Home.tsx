@@ -1,5 +1,6 @@
-import { ArrowRight, CheckCircle2, Search, MessageSquareText } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Search } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
+
 import { Link } from 'react-router-dom';
 import { properties } from '../data/properties';
 import PropertyCard from '../components/PropertyCard';

@@ -1,5 +1,6 @@
-import { Home, Building2, Phone, Mail, MapPin, Menu, X, Facebook, Instagram, Twitter, MessageSquareText } from 'lucide-react';
+import { Home, Building2, Phone, Mail, MapPin, Menu, X, Facebook, Instagram, Twitter } from 'lucide-react';
 import WhatsAppIcon from './WhatsAppIcon';
+
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 

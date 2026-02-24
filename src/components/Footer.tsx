@@ -1,5 +1,6 @@
-import { Building2, Mail, MapPin, Phone, Facebook, Instagram, Twitter, MessageSquareText } from 'lucide-react';
+import { Building2, Mail, MapPin, Phone, Facebook, Instagram, Twitter } from 'lucide-react';
 import WhatsAppIcon from './WhatsAppIcon';
+
 import { Link } from 'react-router-dom';
 
 export default function Footer() {

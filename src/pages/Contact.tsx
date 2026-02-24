@@ -1,5 +1,6 @@
-import { Mail, MapPin, Phone, Send, MessageSquareText } from 'lucide-react';
+import { Mail, MapPin, Phone, Send } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
+
 import { useState, ChangeEvent, FormEvent } from 'react';
 
 export default function Contact() {

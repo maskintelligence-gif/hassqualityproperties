@@ -1,7 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { properties } from '../data/properties';
-import { MapPin, Bed, Bath, Maximize, Check, ArrowLeft, Phone, Mail, Building2, MessageSquareText } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize, Check, ArrowLeft, Phone, Mail, Building2 } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
+
 
 export default function PropertyDetails() {
   const { id } = useParams();
