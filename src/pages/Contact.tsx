@@ -1,4 +1,5 @@
-import { Mail, MapPin, Phone, Send } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, MessageSquareText } from 'lucide-react';
+import WhatsAppIcon from '../components/WhatsAppIcon';
 import { useState, ChangeEvent, FormEvent } from 'react';
 
 export default function Contact() {
@@ -76,6 +77,17 @@ export default function Contact() {
                     <h3 className="font-semibold text-gray-900 text-lg mb-1">Call Us</h3>
                     <p className="text-gray-600">+256 700 000 000</p>
                     <p className="text-gray-500 text-sm mt-1">Mon - Sat: 8:00 AM - 6:00 PM</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="bg-white p-3 rounded-full shadow-sm text-emerald-600">
+                    <WhatsAppIcon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-lg mb-1">WhatsApp Us</h3>
+                    <a href="https://wa.me/256700000000" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-emerald-600 transition-colors break-all">
+                      +256 700 000 000
+                    </a>
                   </div>
                 </div>
               </div>

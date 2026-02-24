@@ -1,4 +1,5 @@
-import { ArrowRight, CheckCircle2, Search } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Search, MessageSquareText } from 'lucide-react';
+import WhatsAppIcon from '../components/WhatsAppIcon';
 import { Link } from 'react-router-dom';
 import { properties } from '../data/properties';
 import PropertyCard from '../components/PropertyCard';
@@ -41,6 +42,14 @@ export default function Home() {
             >
               Contact Us
             </Link>
+            <a
+              href="https://wa.me/256700000000"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-green-500 hover:bg-green-600 text-white rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+            >
+              <WhatsAppIcon className="h-5 w-5" /> WhatsApp
+            </a>
           </div>
         </div>
       </section>

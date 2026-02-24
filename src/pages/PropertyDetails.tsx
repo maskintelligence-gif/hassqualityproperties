@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { properties } from '../data/properties';
-import { MapPin, Bed, Bath, Maximize, Check, ArrowLeft, Phone, Mail, Building2 } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize, Check, ArrowLeft, Phone, Mail, Building2, MessageSquareText } from 'lucide-react';
+import WhatsAppIcon from '../components/WhatsAppIcon';
 
 export default function PropertyDetails() {
   const { id } = useParams();
@@ -141,6 +142,14 @@ export default function PropertyDetails() {
                   className="flex items-center justify-center gap-3 w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-lg font-bold hover:bg-emerald-50 transition-colors"
                 >
                   <Mail className="h-5 w-5" /> Email Us
+                </a>
+                <a 
+                  href="https://wa.me/256700000000"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-3 w-full py-4 bg-green-500 text-white rounded-lg font-bold hover:bg-green-600 transition-colors"
+                >
+                  <WhatsAppIcon className="h-5 w-5" /> WhatsApp
                 </a>
               </div>
 

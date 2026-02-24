@@ -1,4 +1,5 @@
-import { Home, Building2, Phone, Mail, MapPin, Menu, X, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Home, Building2, Phone, Mail, MapPin, Menu, X, Facebook, Instagram, Twitter, MessageSquareText } from 'lucide-react';
+import WhatsAppIcon from './WhatsAppIcon';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -50,6 +51,14 @@ export default function Navbar() {
             >
               Get in Touch
             </Link>
+            <a
+              href="https://wa.me/256700000000"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-green-500 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-green-600 transition-colors shadow-sm flex items-center gap-2"
+            >
+              <WhatsAppIcon className="h-4 w-4" /> WhatsApp
+            </a>
           </div>
 
           {/* Mobile menu button */}
@@ -82,6 +91,14 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+            <a
+              href="https://wa.me/256700000000"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block px-3 py-2 rounded-md text-base font-medium bg-green-500 text-white hover:bg-green-600 transition-colors mt-2"
+            >
+              <WhatsAppIcon className="h-5 w-5 inline-block mr-2" /> WhatsApp
+            </a>
           </div>
         </div>
       )}

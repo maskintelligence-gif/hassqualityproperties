@@ -1,4 +1,5 @@
-import { Building2, Mail, MapPin, Phone, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Building2, Mail, MapPin, Phone, Facebook, Instagram, Twitter, MessageSquareText } from 'lucide-react';
+import WhatsAppIcon from './WhatsAppIcon';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -65,6 +66,12 @@ export default function Footer() {
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-emerald-500 flex-shrink-0" />
                 <span className="text-gray-400 text-sm">+256 700 000 000</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <WhatsAppIcon className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+                <a href="https://wa.me/256700000000" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  +256 700 000 000
+                </a>
               </li>
             </ul>
           </div>
