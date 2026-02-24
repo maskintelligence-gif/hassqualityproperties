@@ -1,19 +1,44 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { properties } from '../data/properties';
 import PropertyCard from '../components/PropertyCard';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, ArrowUpDown, Heart } from 'lucide-react';
+import { useFavorites } from '../hooks/useFavorites';
 
 export default function Properties() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('All');
+  const [sortBy, setSortBy] = useState('newest');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const { isFavorite } = useFavorites();
 
-  const filteredProperties = properties.filter(property => {
-    const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          property.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'All' || property.type === filterType;
-    
-    return matchesSearch && matchesType;
-  });
+  const parsePrice = (priceStr: string) => {
+    // Extract numbers from strings like "UGX 450,000,000" or "UGX 1,500,000 / Month"
+    const numericStr = priceStr.replace(/[^0-9]/g, '');
+    return parseInt(numericStr, 10) || 0;
+  };
+
+  const filteredAndSortedProperties = useMemo(() => {
+    let result = properties.filter(property => {
+      const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            property.location.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesType = filterType === 'All' || property.type === filterType;
+      const matchesFavorites = !showFavoritesOnly || isFavorite(property.id);
+      
+      return matchesSearch && matchesType && matchesFavorites;
+    });
+
+    result.sort((a, b) => {
+      if (sortBy === 'price-low') {
+        return parsePrice(a.price) - parsePrice(b.price);
+      } else if (sortBy === 'price-high') {
+        return parsePrice(b.price) - parsePrice(a.price);
+      }
+      // Default 'newest' (assuming array order is newest first for this mock)
+      return 0;
+    });
+
+    return result;
+  }, [searchTerm, filterType, sortBy, showFavoritesOnly, isFavorite]);
 
   const propertyTypes = ['All', 'House', 'Land', 'Apartment', 'Commercial'];
 
@@ -29,8 +54,8 @@ export default function Properties() {
 
         {/* Search and Filter */}
         <div className="bg-white p-6 rounded-xl shadow-sm mb-10">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-grow relative">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div className="md:col-span-5 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
@@ -41,7 +66,7 @@ export default function Properties() {
               />
             </div>
             
-            <div className="flex-shrink-0 relative min-w-[200px]">
+            <div className="md:col-span-3 relative">
               <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <select
                 className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none appearance-none bg-white cursor-pointer"
@@ -53,13 +78,40 @@ export default function Properties() {
                 ))}
               </select>
             </div>
+
+            <div className="md:col-span-3 relative">
+              <ArrowUpDown className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <select
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none appearance-none bg-white cursor-pointer"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="newest">Newest First</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-1 flex items-center justify-center">
+              <button
+                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                className={`p-3 rounded-lg border transition-colors flex items-center justify-center w-full h-full ${
+                  showFavoritesOnly 
+                    ? 'bg-red-50 border-red-200 text-red-500' 
+                    : 'bg-white border-gray-200 text-gray-400 hover:bg-gray-50'
+                }`}
+                title="Show Saved Properties"
+              >
+                <Heart className={`h-6 w-6 ${showFavoritesOnly ? 'fill-red-500' : ''}`} />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Results */}
-        {filteredProperties.length > 0 ? (
+        {filteredAndSortedProperties.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProperties.map((property) => (
+            {filteredAndSortedProperties.map((property) => (
               <PropertyCard key={property.id} property={property} />
             ))}
           </div>

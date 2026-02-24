@@ -1,13 +1,17 @@
-import { MapPin, Bed, Bath, Maximize, ArrowRight } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize, ArrowRight, Heart, Video } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Property } from '../data/properties';
 import { FC } from 'react';
+import { useFavorites } from '../hooks/useFavorites';
 
 interface PropertyCardProps {
   property: Property;
 }
 
 const PropertyCard: FC<PropertyCardProps> = ({ property }) => {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite(property.id);
+
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border border-gray-100 flex flex-col h-full">
       <div className="relative h-64 overflow-hidden group">
@@ -19,6 +23,17 @@ const PropertyCard: FC<PropertyCardProps> = ({ property }) => {
         <div className="absolute top-4 left-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
           {property.status}
         </div>
+        <button 
+          onClick={(e) => toggleFavorite(property.id, e)}
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/80 hover:bg-white text-gray-500 hover:text-red-500 transition-colors backdrop-blur-sm z-10"
+        >
+          <Heart className={`h-5 w-5 ${favorite ? 'fill-red-500 text-red-500' : ''}`} />
+        </button>
+        {property.videoUrl && (
+          <div className="absolute top-4 right-14 p-2 rounded-full bg-black/50 text-white backdrop-blur-sm z-10" title="Video Tour Available">
+            <Video className="h-5 w-5" />
+          </div>
+        )}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
           <p className="text-white font-bold text-lg">{property.price}</p>
         </div>

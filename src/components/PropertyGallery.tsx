@@ -78,7 +78,7 @@ export default function PropertyGallery() {
                 {currentItem.price}
               </p>
               <Link
-                to={`/property/${currentItem.id}`}
+                to={`/properties/${currentItem.id}`}
                 className="inline-block px-8 py-3 bg-white text-gray-900 rounded-lg font-bold hover:bg-gray-100 transition-colors shadow-lg"
               >
                 View Details

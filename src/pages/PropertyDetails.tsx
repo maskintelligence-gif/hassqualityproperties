@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { properties } from '../data/properties';
-import { MapPin, Bed, Bath, Maximize, Check, ArrowLeft, Phone, Mail, Building2, ChevronLeft, ChevronRight, X, Download } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize, Check, ArrowLeft, Phone, Mail, Building2, ChevronLeft, ChevronRight, X, Download, Share2, Heart, Video } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
-
+import PropertyCard from '../components/PropertyCard';
+import { useFavorites } from '../hooks/useFavorites';
 
 export default function PropertyDetails() {
   const { id } = useParams();
@@ -11,6 +12,15 @@ export default function PropertyDetails() {
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [showShareToast, setShowShareToast] = useState(false);
+  
+  const { isFavorite, toggleFavorite } = useFavorites();
+
+  // Reset image index when property changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+    window.scrollTo(0, 0);
+  }, [id]);
 
   const images = property?.images || [property?.imageUrl];
 
@@ -39,6 +49,27 @@ export default function PropertyDetails() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading image:', error);
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: property?.title,
+      text: `Check out this property: ${property?.title} for ${property?.price}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      // Fallback to copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      setShowShareToast(true);
+      setTimeout(() => setShowShareToast(false), 3000);
     }
   };
 
@@ -71,8 +102,34 @@ export default function PropertyDetails() {
                 {property.location}
               </div>
             </div>
-            <div className="text-emerald-600">
-              <p className="text-3xl font-bold">{property.price}</p>
+            <div className="flex flex-col items-end gap-4">
+              <div className="text-emerald-600">
+                <p className="text-3xl font-bold">{property.price}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleShare}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors relative"
+                >
+                  <Share2 className="h-5 w-5" /> Share
+                  {showShareToast && (
+                    <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-3 rounded shadow-lg whitespace-nowrap">
+                      Link copied!
+                    </span>
+                  )}
+                </button>
+                <button 
+                  onClick={(e) => toggleFavorite(property.id, e)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors border ${
+                    isFavorite(property.id) 
+                      ? 'bg-red-50 border-red-200 text-red-500 hover:bg-red-100' 
+                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Heart className={`h-5 w-5 ${isFavorite(property.id) ? 'fill-red-500' : ''}`} /> 
+                  {isFavorite(property.id) ? 'Saved' : 'Save'}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -246,6 +303,24 @@ export default function PropertyDetails() {
                 ))}
               </div>
             </div>
+
+            {/* Video Tour */}
+            {property.videoUrl && (
+              <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-100">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <Video className="h-6 w-6 text-emerald-600" /> Video Tour
+                </h2>
+                <div className="relative w-full overflow-hidden pt-[56.25%] rounded-lg bg-gray-100">
+                  <iframe
+                    src={property.videoUrl}
+                    title="Property Video Tour"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute top-0 left-0 w-full h-full border-0"
+                  ></iframe>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -284,6 +359,28 @@ export default function PropertyDetails() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Similar Properties */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 relative z-10">
+        <div className="flex justify-between items-end mb-8">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Similar Properties</h2>
+            <p className="text-gray-600">You might also be interested in these properties</p>
+          </div>
+          <Link to="/properties" className="hidden md:flex items-center gap-2 text-emerald-600 font-semibold hover:text-emerald-700">
+            View All <ArrowLeft className="h-5 w-5 rotate-180" />
+          </Link>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {properties
+            .filter(p => p.id !== property.id && (p.type === property.type || p.location.includes(property.location.split(',')[0])))
+            .slice(0, 3)
+            .map((similarProperty) => (
+              <PropertyCard key={similarProperty.id} property={similarProperty} />
+            ))}
         </div>
       </div>
     </div>
