@@ -27,12 +27,12 @@ jobs:
     - name: Build
       run: npm run build
       env:
-        PUBLIC_URL: /hassqualityproperties-main  # Replace with your repo name
+        PUBLIC_URL: /hassqualityproperties  # Replace with your repo name
         CI: false
     
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4
       with:
-        folder: build
+        folder: dist
         branch: gh-pages
         clean: true
