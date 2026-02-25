@@ -2,15 +2,35 @@ import { ArrowRight, CheckCircle2, Search, Star } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
 
 import { Link } from 'react-router-dom';
-import { useRef, useEffect } from 'react';
-import { properties } from '../data/properties';
+import { useRef, useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
 import { testimonials } from '../data/testimonials';
 import PropertyCard from '../components/PropertyCard';
 import PropertyGallery from '../components/PropertyGallery';
 
 export default function Home() {
-  const featuredProperties = properties.filter(p => p.featured).slice(0, 3);
+  const [featuredProperties, setFeaturedProperties] = useState<any[]>([]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    async function fetchFeatured() {
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*')
+          .limit(3)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (data) {
+          setFeaturedProperties(data.map(p => ({ ...p, imageUrl: p.image_url })));
+        }
+      } catch (error) {
+        console.error('Error fetching featured properties:', error);
+      }
+    }
+    fetchFeatured();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {

@@ -1,12 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { properties } from '../data/properties';
+import { supabase } from '../lib/supabase';
 import PropertyCard from '../components/PropertyCard';
 import { Search, Filter, ArrowUpDown, Heart, Home, Car } from 'lucide-react';
 import { useFavorites } from '../hooks/useFavorites';
 
 export default function Properties() {
   const location = useLocation();
+  const [allProperties, setAllProperties] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<'Real Estate' | 'Vehicles' | 'Rentals' | 'Motorcycles'>('Real Estate');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('All');
@@ -15,24 +17,42 @@ export default function Properties() {
   const { isFavorite } = useFavorites();
 
   useEffect(() => {
+    async function fetchProperties() {
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (data) {
+          setAllProperties(data.map(p => ({ ...p, imageUrl: p.image_url })));
+        }
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProperties();
+  }, []);
+
+  useEffect(() => {
     if (location.state?.category) {
       setActiveCategory(location.state.category);
     }
     if (location.state?.type) {
       setFilterType(location.state.type);
     }
-    // Budget filtering could be added here if we had a budget state, 
-    // but for now we'll just set the category and type to guide them.
   }, [location.state]);
 
   const parsePrice = (priceStr: string) => {
-    // Extract numbers from strings like "UGX 450,000,000" or "UGX 1,500,000 / Month"
     const numericStr = priceStr.replace(/[^0-9]/g, '');
     return parseInt(numericStr, 10) || 0;
   };
 
   const filteredAndSortedProperties = useMemo(() => {
-    let result = properties.filter(property => {
+    let result = allProperties.filter(property => {
       let matchesCategory = false;
 
       if (activeCategory === 'Real Estate') {
@@ -59,12 +79,11 @@ export default function Properties() {
       } else if (sortBy === 'price-high') {
         return parsePrice(b.price) - parsePrice(a.price);
       }
-      // Default 'newest' (assuming array order is newest first for this mock)
       return 0;
     });
 
     return result;
-  }, [activeCategory, searchTerm, filterType, sortBy, showFavoritesOnly, isFavorite]);
+  }, [allProperties, activeCategory, searchTerm, filterType, sortBy, showFavoritesOnly, isFavorite]);
 
   const getPropertyTypes = () => {
     switch (activeCategory) {

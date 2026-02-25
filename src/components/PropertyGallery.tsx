@@ -1,26 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { Maximize, X, ChevronLeft, ChevronRight } from 'lucide-react';
-import { properties } from '../data/properties';
+import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 
 export default function PropertyGallery() {
+  const [galleryItems, setGalleryItems] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-
-  // Filter properties that have images to showcase
-  const galleryItems = properties.filter(p => p.imageUrl);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isLightboxOpen) return; // Pause auto-slide when lightbox is open
+    async function fetchGallery() {
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*')
+          .limit(10)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (data) {
+          setGalleryItems(data.map(p => ({ ...p, imageUrl: p.image_url })));
+        }
+      } catch (error) {
+        console.error('Error fetching gallery:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchGallery();
+  }, []);
+
+  useEffect(() => {
+    if (isLightboxOpen || galleryItems.length === 0) return;
 
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % galleryItems.length);
-    }, 5000); // Change image every 5 seconds
+    }, 5000);
 
     return () => clearInterval(timer);
   }, [isLightboxOpen, galleryItems.length]);
 
-  if (galleryItems.length === 0) return null;
+  if (loading || galleryItems.length === 0) return null;
 
   const currentItem = galleryItems[currentIndex];
 

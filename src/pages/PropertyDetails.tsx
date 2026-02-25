@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { properties } from '../data/properties';
+import { supabase } from '../lib/supabase';
 import { MapPin, Bed, Bath, Maximize, Check, ArrowLeft, Phone, Mail, Building2, ChevronLeft, ChevronRight, X, Download, Share2, Heart, Video } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
 import PropertyCard from '../components/PropertyCard';
@@ -8,21 +8,54 @@ import { useFavorites } from '../hooks/useFavorites';
 
 export default function PropertyDetails() {
   const { id } = useParams();
-  const property = properties.find(p => p.id === id);
-  
+  const [property, setProperty] = useState<any>(null);
+  const [similarProperties, setSimilarProperties] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [showShareToast, setShowShareToast] = useState(false);
   
   const { isFavorite, toggleFavorite } = useFavorites();
 
-  // Reset image index when property changes
   useEffect(() => {
+    async function fetchProperty() {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+        if (data) {
+          const mapped = { ...data, imageUrl: data.image_url, bedrooms: data.beds, bathrooms: data.baths };
+          setProperty(mapped);
+          
+          // Fetch similar properties
+          const { data: similarData } = await supabase
+            .from('properties')
+            .select('*')
+            .eq('category', data.category)
+            .neq('id', data.id)
+            .limit(3);
+          
+          if (similarData) {
+            setSimilarProperties(similarData.map(p => ({ ...p, imageUrl: p.image_url })));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching property:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProperty();
     setCurrentImageIndex(0);
     window.scrollTo(0, 0);
   }, [id]);
 
-  const images = property?.images || [property?.imageUrl];
+  const images = property?.images || (property?.imageUrl ? [property.imageUrl] : []);
 
   const handleNextImage = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -432,29 +465,9 @@ export default function PropertyDetails() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {properties
-            .filter(p => {
-              if (p.id === property.id) return false;
-              if (p.category !== property.category) return false;
-              
-              // For Real Estate: Match Type OR Location
-              if (property.category === 'Real Estate') {
-                return p.type === property.type || p.location.includes(property.location.split(',')[0]);
-              }
-              
-              // For Vehicles: Match Type (e.g. Car vs Car)
-              return p.type === property.type;
-            })
-            .sort((a, b) => {
-              // Prioritize exact type match
-              if (a.type === property.type && b.type !== property.type) return -1;
-              if (a.type !== property.type && b.type === property.type) return 1;
-              return 0;
-            })
-            .slice(0, 3)
-            .map((similarProperty) => (
-              <PropertyCard key={similarProperty.id} property={similarProperty} />
-            ))}
+          {similarProperties.map((similarProperty) => (
+            <PropertyCard key={similarProperty.id} property={similarProperty} />
+          ))}
         </div>
       </div>
     </div>
