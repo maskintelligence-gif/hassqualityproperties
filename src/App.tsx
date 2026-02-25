@@ -8,11 +8,13 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Testimonials from './pages/Testimonials';
 import ScrollToTop from './components/ScrollToTop';
+import WelcomeOnboarding from './components/WelcomeOnboarding';
 
 function App() {
   return (
     <Router>
       <ScrollToTop />
+      <WelcomeOnboarding />
       <div className="flex flex-col min-h-screen font-sans">
         <Navbar />
         <main className="flex-grow">

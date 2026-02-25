@@ -18,6 +18,11 @@ export default function Properties() {
     if (location.state?.category) {
       setActiveCategory(location.state.category);
     }
+    if (location.state?.type) {
+      setFilterType(location.state.type);
+    }
+    // Budget filtering could be added here if we had a budget state, 
+    // but for now we'll just set the category and type to guide them.
   }, [location.state]);
 
   const parsePrice = (priceStr: string) => {
