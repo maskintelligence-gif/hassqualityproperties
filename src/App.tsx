@@ -14,6 +14,7 @@ import AdminProperties from './pages/admin/AdminProperties';
 import AddProperty from './pages/admin/AddProperty';
 import EditProperty from './pages/admin/EditProperty';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminMedia from './pages/admin/AdminMedia';
 import AdminUsers from './pages/admin/AdminUsers';
 import { ToastProvider } from './components/Toast';
 
@@ -42,6 +43,7 @@ function App() {
             <Route path="properties/edit/:id" element={<EditProperty />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="media" element={<AdminMedia />} />
           </Route>
         </Routes>
       </Router>
