@@ -22,6 +22,7 @@ export default function AddProperty() {
         status: formData.status,
         image_url: formData.imageUrl,
         images: formData.additionalImages.length > 0 ? formData.additionalImages : null,
+        video_url: formData.videoUrl || null,
         beds: formData.beds ? parseInt(formData.beds) : null,
         baths: formData.baths ? parseInt(formData.baths) : null,
         area: formData.area || null,

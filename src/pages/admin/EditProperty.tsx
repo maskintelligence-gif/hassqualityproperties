@@ -38,6 +38,7 @@ export default function EditProperty() {
             mileage: data.mileage || '',
             transmission: data.transmission || 'Automatic',
             fuelType: data.fuel_type || 'Petrol',
+            videoUrl: data.video_url || '',
           });
         }
       } catch (err: any) {
@@ -72,6 +73,7 @@ export default function EditProperty() {
         mileage: formData.mileage || null,
         transmission: formData.transmission || null,
         fuel_type: formData.fuelType || null,
+        video_url: formData.videoUrl || null,
         updated_at: new Date().toISOString(),
       }).eq('id', id);
       if (error) throw error;
