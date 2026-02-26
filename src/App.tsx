@@ -12,32 +12,40 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProperties from './pages/admin/AdminProperties';
 import AddProperty from './pages/admin/AddProperty';
+import EditProperty from './pages/admin/EditProperty';
+import AdminSettings from './pages/admin/AdminSettings';
+import AdminUsers from './pages/admin/AdminUsers';
+import { ToastProvider } from './components/Toast';
 
 function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <Routes>
-        {/* Public Routes */}
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/properties" element={<Properties />} />
-          <Route path="/properties/:id" element={<PropertyDetails />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/testimonials" element={<Testimonials />} />
-        </Route>
+    <ToastProvider>
+      <Router>
+        <ScrollToTop />
+        <Routes>
+          {/* Public Routes */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/properties" element={<Properties />} />
+            <Route path="/properties/:id" element={<PropertyDetails />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/testimonials" element={<Testimonials />} />
+          </Route>
 
-        {/* Admin Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="properties" element={<AdminProperties />} />
-          <Route path="properties/add" element={<AddProperty />} />
-          {/* Add more admin routes here */}
-        </Route>
-      </Routes>
-    </Router>
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="properties" element={<AdminProperties />} />
+            <Route path="properties/add" element={<AddProperty />} />
+            <Route path="properties/edit/:id" element={<EditProperty />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 }
 
