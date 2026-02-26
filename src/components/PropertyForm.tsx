@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Save, X, Loader2, Upload, Link as LinkIcon, CheckCircle2, AlertCircle, FolderOpen, Video, Youtube, FileVideo } from 'lucide-react';
+import { ArrowLeft, Save, X, Loader2, Upload, Link as LinkIcon, CheckCircle2, AlertCircle, FolderOpen, Video, Youtube, FileVideo, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import MediaPickerModal from './MediaPickerModal';
 
@@ -80,10 +80,11 @@ interface ImageUploaderProps {
 }
 
 function ImageUploader({ label, required, currentUrl, onUpload, onClear }: ImageUploaderProps) {
+  const [replacing, setReplacing] = useState(false);
   const [tab, setTab] = useState<'upload' | 'url' | 'library'>('upload');
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [urlInput, setUrlInput] = useState(currentUrl || '');
+  const [urlInput, setUrlInput] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -95,6 +96,8 @@ function ImageUploader({ label, required, currentUrl, onUpload, onClear }: Image
     try {
       const url = await uploadFile(file);
       onUpload(url);
+      setReplacing(false);
+      setUrlInput('');
     } catch (err) {
       console.error('Upload failed:', err);
     } finally {
@@ -102,39 +105,94 @@ function ImageUploader({ label, required, currentUrl, onUpload, onClear }: Image
     }
   }, [onUpload]);
 
+  const handleUrlConfirm = () => {
+    const url = urlInput.trim();
+    if (url) { onUpload(url); setReplacing(false); setUrlInput(''); }
+  };
+
+  const handleLibraryPick = (url: string) => {
+    onUpload(url);
+    setReplacing(false);
+    setShowPicker(false);
+  };
+
+  // ── Has image ──
+  if (currentUrl && !replacing) {
+    return (
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <div className="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+          <div className="relative">
+            <img src={currentUrl} alt="Main image" className="w-full h-52 object-cover" />
+            <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+              <CheckCircle2 className="h-3 w-3 text-emerald-400" /> Main image
+            </div>
+          </div>
+          <div className="flex items-center gap-2 p-3 bg-white border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => { setReplacing(true); setTab('upload'); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-medium hover:bg-emerald-100 transition-colors"
+            >
+              <Upload className="h-3.5 w-3.5" /> Replace Image
+            </button>
+            <button
+              type="button"
+              onClick={() => { setReplacing(true); setTab('library'); setShowPicker(true); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-xs font-medium hover:bg-gray-100 transition-colors"
+            >
+              <FolderOpen className="h-3.5 w-3.5" /> Pick from Library
+            </button>
+            <button
+              type="button"
+              onClick={() => { onClear(); setUrlInput(''); }}
+              className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-medium hover:bg-red-100 transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Remove
+            </button>
+          </div>
+        </div>
+
+        {showPicker && (
+          <MediaPickerModal onSelect={handleLibraryPick} onClose={() => { setShowPicker(false); setReplacing(false); }} />
+        )}
+      </div>
+    );
+  }
+
+  // ── No image / replacing ──
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
         <label className="block text-sm font-medium text-gray-700">
           {label} {required && <span className="text-red-500">*</span>}
+          {replacing && <span className="ml-2 text-xs text-emerald-600 font-normal">— replacing current image</span>}
         </label>
-        <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
-          {(['upload', 'url', 'library'] as const).map(t => (
-            <button key={t} type="button" onClick={() => setTab(t)}
-              className={`px-3 py-1 flex items-center gap-1 transition-colors ${tab === t ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
-              {t === 'upload' && <Upload className="h-3 w-3" />}
-              {t === 'url' && <LinkIcon className="h-3 w-3" />}
-              {t === 'library' && <FolderOpen className="h-3 w-3" />}
-              {t === 'library' ? 'Library' : t.charAt(0).toUpperCase() + t.slice(1)}
+        <div className="flex items-center gap-2">
+          {replacing && (
+            <button type="button" onClick={() => setReplacing(false)}
+              className="text-xs text-gray-500 hover:text-gray-700 underline">
+              Cancel
             </button>
-          ))}
+          )}
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
+            {(['upload', 'url', 'library'] as const).map(t => (
+              <button key={t} type="button" onClick={() => { setTab(t); if (t === 'library') setShowPicker(true); }}
+                className={`px-3 py-1 flex items-center gap-1 transition-colors ${tab === t ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
+                {t === 'upload' && <Upload className="h-3 w-3" />}
+                {t === 'url' && <LinkIcon className="h-3 w-3" />}
+                {t === 'library' && <FolderOpen className="h-3 w-3" />}
+                {t === 'library' ? 'Library' : t.charAt(0).toUpperCase() + t.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {currentUrl && !uploading ? (
-        <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 group">
-          <img src={currentUrl} alt="Preview" className="w-full h-48 object-cover" />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-          <button type="button" onClick={() => { onClear(); setUrlInput(''); }}
-            className="absolute top-2 right-2 h-7 w-7 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow">
-            <X className="h-4 w-4" />
-          </button>
-          <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
-            <CheckCircle2 className="h-3 w-3 text-emerald-400" /> Image ready
-          </div>
-        </div>
-      ) : uploading ? (
-        <div className="h-48 rounded-lg border-2 border-emerald-300 bg-emerald-50 flex flex-col items-center justify-center gap-3">
+      {uploading ? (
+        <div className="h-48 rounded-xl border-2 border-emerald-300 bg-emerald-50 flex flex-col items-center justify-center gap-3">
           <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
           <p className="text-sm text-emerald-700 font-medium">Uploading...</p>
         </div>
@@ -143,7 +201,7 @@ function ImageUploader({ label, required, currentUrl, onUpload, onClear }: Image
           onDragLeave={() => setDragging(false)}
           onDrop={e => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files); }}
           onClick={() => inputRef.current?.click()}
-          className={`h-48 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors ${dragging ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50'}`}>
+          className={`h-48 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors ${dragging ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50'}`}>
           <div className="p-3 bg-white rounded-full shadow-sm text-emerald-600"><Upload className="h-6 w-6" /></div>
           <div className="text-center">
             <p className="text-sm font-medium text-gray-700">Drop image here or <span className="text-emerald-600">browse</span></p>
@@ -153,9 +211,16 @@ function ImageUploader({ label, required, currentUrl, onUpload, onClear }: Image
         </div>
       ) : tab === 'url' ? (
         <div className="space-y-2">
-          <input type="url" value={urlInput} onChange={e => { setUrlInput(e.target.value); onUpload(e.target.value); }}
-            placeholder="https://images.unsplash.com/..."
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm" />
+          <div className="flex gap-2">
+            <input type="url" value={urlInput} onChange={e => setUrlInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleUrlConfirm(); } }}
+              placeholder="https://images.unsplash.com/..."
+              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm" autoFocus />
+            <button type="button" onClick={handleUrlConfirm} disabled={!urlInput.trim()}
+              className="px-4 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50">
+              Use
+            </button>
+          </div>
           {urlInput && (
             <div className="rounded-lg overflow-hidden border border-gray-200 h-32">
               <img src={urlInput} alt="Preview" className="w-full h-full object-cover"
@@ -163,19 +228,13 @@ function ImageUploader({ label, required, currentUrl, onUpload, onClear }: Image
             </div>
           )}
         </div>
-      ) : (
-        <div onClick={() => setShowPicker(true)}
-          className="h-48 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors">
-          <div className="p-3 bg-white rounded-full shadow-sm text-emerald-600"><FolderOpen className="h-6 w-6" /></div>
-          <div className="text-center">
-            <p className="text-sm font-medium text-gray-700">Pick from Media Library</p>
-            <p className="text-xs text-gray-400 mt-1">Choose from previously uploaded images</p>
-          </div>
-        </div>
-      )}
+      ) : null}
 
       {showPicker && (
-        <MediaPickerModal onSelect={url => { onUpload(url); setShowPicker(false); }} onClose={() => setShowPicker(false)} />
+        <MediaPickerModal
+          onSelect={handleLibraryPick}
+          onClose={() => { setShowPicker(false); if (replacing) setReplacing(false); }}
+        />
       )}
     </div>
   );
@@ -188,31 +247,63 @@ interface MultiImageUploaderProps {
   onAdd: (url: string) => void;
   onAddMultiple: (urls: string[]) => void;
   onRemove: (i: number) => void;
+  onReplace: (i: number, url: string) => void;
 }
 
-function MultiImageUploader({ images, onAdd, onAddMultiple, onRemove }: MultiImageUploaderProps) {
-  const [tab, setTab] = useState<'upload' | 'url' | 'library'>('upload');
+function MultiImageUploader({ images, onAdd, onAddMultiple, onRemove, onReplace }: MultiImageUploaderProps) {
+  const [addTab, setAddTab] = useState<'upload' | 'url' | 'library'>('upload');
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [urlInput, setUrlInput] = useState('');
   const [dragging, setDragging] = useState(false);
-  const [showPicker, setShowPicker] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [showAddPicker, setShowAddPicker] = useState(false);
+  // Per-slot replace state
+  const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
+  const [replaceTab, setReplaceTab] = useState<'upload' | 'url' | 'library'>('upload');
+  const [replaceUrl, setReplaceUrl] = useState('');
+  const [replaceUploading, setReplaceUploading] = useState(false);
+  const [showReplacePicker, setShowReplacePicker] = useState(false);
+  const addInputRef = useRef<HTMLInputElement>(null);
+  const replaceInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFiles = useCallback(async (files: FileList | null) => {
+  const handleAddFiles = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploadError(null);
     setUploading(true);
     try {
       const urls = await Promise.all(Array.from(files).map(uploadFile));
       urls.forEach(url => onAdd(url));
-    } catch (err: any) {
+    } catch {
       setUploadError('Upload failed. Check your storage bucket settings.');
     } finally {
       setUploading(false);
-      if (inputRef.current) inputRef.current.value = '';
+      if (addInputRef.current) addInputRef.current.value = '';
     }
   }, [onAdd]);
+
+  const handleReplaceFiles = useCallback(async (files: FileList | null) => {
+    if (!files || files.length === 0 || replacingIndex === null) return;
+    setReplaceUploading(true);
+    try {
+      const url = await uploadFile(files[0]);
+      onReplace(replacingIndex, url);
+      setReplacingIndex(null);
+      setReplaceUrl('');
+    } catch {
+      // handle silently
+    } finally {
+      setReplaceUploading(false);
+    }
+  }, [replacingIndex, onReplace]);
+
+  const confirmReplaceUrl = () => {
+    const url = replaceUrl.trim();
+    if (url && replacingIndex !== null) {
+      onReplace(replacingIndex, url);
+      setReplacingIndex(null);
+      setReplaceUrl('');
+    }
+  };
 
   const addUrl = () => {
     const url = urlInput.trim();
@@ -223,85 +314,155 @@ function MultiImageUploader({ images, onAdd, onAddMultiple, onRemove }: MultiIma
     <div>
       <div className="flex items-center justify-between mb-3">
         <label className="block text-sm font-medium text-gray-700">
-          Additional Images <span className="text-gray-400 font-normal">(optional)</span>
+          Additional Images <span className="text-gray-400 font-normal text-xs">({images.length} image{images.length !== 1 ? 's' : ''})</span>
         </label>
-        <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
-          {(['upload', 'url', 'library'] as const).map(t => (
-            <button key={t} type="button" onClick={() => setTab(t)}
-              className={`px-3 py-1 flex items-center gap-1 transition-colors ${tab === t ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
-              {t === 'upload' && <Upload className="h-3 w-3" />}
-              {t === 'url' && <LinkIcon className="h-3 w-3" />}
-              {t === 'library' && <FolderOpen className="h-3 w-3" />}
-              {t === 'library' ? 'Library' : t.charAt(0).toUpperCase() + t.slice(1)}
-            </button>
-          ))}
-        </div>
       </div>
 
-      {tab === 'upload' ? (
-        <div onDragOver={e => { e.preventDefault(); setDragging(true); }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={e => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files); }}
-          onClick={() => !uploading && inputRef.current?.click()}
-          className={`rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 py-6 cursor-pointer transition-colors ${dragging ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50'} ${uploading ? 'cursor-not-allowed opacity-75' : ''}`}>
-          {uploading
-            ? <><Loader2 className="h-6 w-6 text-emerald-600 animate-spin" /><p className="text-sm text-emerald-700 font-medium">Uploading...</p></>
-            : <><Upload className="h-6 w-6 text-emerald-500" /><p className="text-sm text-gray-600">Drop images here or <span className="text-emerald-600 font-medium">browse</span></p><p className="text-xs text-gray-400">Select multiple files at once</p></>
-          }
-          <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
-        </div>
-      ) : tab === 'url' ? (
-        <div className="flex gap-2">
-          <input type="url" value={urlInput} onChange={e => setUrlInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addUrl(); } }}
-            placeholder="Paste image URL and press Add"
-            className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm" />
-          <button type="button" onClick={addUrl} disabled={!urlInput.trim()}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
-            Add
-          </button>
-        </div>
-      ) : (
-        <button type="button" onClick={() => setShowPicker(true)}
-          className="w-full rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50 flex items-center justify-center gap-3 py-5 cursor-pointer transition-colors">
-          <FolderOpen className="h-5 w-5 text-emerald-500" />
-          <span className="text-sm font-medium text-gray-700">Pick from Media Library</span>
-        </button>
-      )}
-
-      {uploadError && (
-        <div className="mt-2 flex items-center gap-2 text-red-600 text-xs">
-          <AlertCircle className="h-4 w-4 flex-shrink-0" /> {uploadError}
-        </div>
-      )}
-
+      {/* Existing images grid */}
       {images.length > 0 && (
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mt-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
           {images.map((url, i) => (
-            <div key={i} className="relative group aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-              <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-              <button type="button" onClick={() => onRemove(i)}
-                className="absolute top-1 right-1 h-5 w-5 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow">
-                <X className="h-3 w-3" />
-              </button>
+            <div key={`${url}-${i}`} className="relative">
+              {/* Replace mode for this slot */}
+              {replacingIndex === i ? (
+                <div className="rounded-xl border-2 border-emerald-400 bg-emerald-50 p-2 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium text-emerald-700">Replace image {i + 1}</p>
+                    <button type="button" onClick={() => { setReplacingIndex(null); setReplaceUrl(''); }}
+                      className="text-gray-400 hover:text-gray-600">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <div className="flex rounded-md border border-emerald-200 overflow-hidden text-xs mb-1">
+                    {(['upload', 'url', 'library'] as const).map(t => (
+                      <button key={t} type="button" onClick={() => { setReplaceTab(t); if (t === 'library') setShowReplacePicker(true); }}
+                        className={`flex-1 py-1 transition-colors ${replaceTab === t ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600'}`}>
+                        {t === 'upload' ? <Upload className="h-3 w-3 mx-auto" /> : t === 'url' ? <LinkIcon className="h-3 w-3 mx-auto" /> : <FolderOpen className="h-3 w-3 mx-auto" />}
+                      </button>
+                    ))}
+                  </div>
+                  {replaceUploading ? (
+                    <div className="flex items-center justify-center py-3">
+                      <Loader2 className="h-5 w-5 text-emerald-600 animate-spin" />
+                    </div>
+                  ) : replaceTab === 'upload' ? (
+                    <div onClick={() => replaceInputRef.current?.click()}
+                      className="h-16 rounded-lg border border-dashed border-emerald-300 flex items-center justify-center gap-2 cursor-pointer hover:bg-emerald-100 transition-colors">
+                      <Upload className="h-4 w-4 text-emerald-600" />
+                      <span className="text-xs text-emerald-700">Browse file</span>
+                      <input ref={replaceInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleReplaceFiles(e.target.files)} />
+                    </div>
+                  ) : replaceTab === 'url' ? (
+                    <div className="flex gap-1">
+                      <input type="url" value={replaceUrl} onChange={e => setReplaceUrl(e.target.value)}
+                        placeholder="Image URL" className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-emerald-500 outline-none" autoFocus />
+                      <button type="button" onClick={confirmReplaceUrl} disabled={!replaceUrl.trim()}
+                        className="px-2 py-1.5 bg-emerald-600 text-white rounded text-xs font-medium hover:bg-emerald-700 disabled:opacity-50">
+                        OK
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                // Normal thumbnail
+                <div className="rounded-xl overflow-hidden border border-gray-200 bg-gray-100">
+                  <div className="aspect-square">
+                    <img src={url} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                  </div>
+                  {/* Always-visible action bar */}
+                  <div className="flex items-center justify-between p-1.5 bg-white border-t border-gray-100 gap-1">
+                    <button type="button" onClick={() => { setReplacingIndex(i); setReplaceTab('upload'); setReplaceUrl(''); }}
+                      className="flex-1 flex items-center justify-center gap-1 py-1 text-xs text-emerald-600 hover:bg-emerald-50 rounded transition-colors font-medium">
+                      <Upload className="h-3 w-3" /> Replace
+                    </button>
+                    <div className="w-px h-4 bg-gray-200" />
+                    <button type="button" onClick={() => onRemove(i)}
+                      className="flex-1 flex items-center justify-center gap-1 py-1 text-xs text-red-600 hover:bg-red-50 rounded transition-colors font-medium">
+                      <Trash2 className="h-3 w-3" /> Remove
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {showPicker && (
+      {/* Replace from library picker */}
+      {showReplacePicker && replacingIndex !== null && (
+        <MediaPickerModal
+          onSelect={url => { onReplace(replacingIndex, url); setReplacingIndex(null); setShowReplacePicker(false); }}
+          onClose={() => { setShowReplacePicker(false); setReplacingIndex(null); }}
+        />
+      )}
+
+      {/* Add more section */}
+      <div className="rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-white">
+          <p className="text-xs font-medium text-gray-600">Add more images</p>
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
+            {(['upload', 'url', 'library'] as const).map(t => (
+              <button key={t} type="button" onClick={() => { setAddTab(t); if (t === 'library') setShowAddPicker(true); }}
+                className={`px-3 py-1 flex items-center gap-1 transition-colors ${addTab === t ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
+                {t === 'upload' && <Upload className="h-3 w-3" />}
+                {t === 'url' && <LinkIcon className="h-3 w-3" />}
+                {t === 'library' && <FolderOpen className="h-3 w-3" />}
+                {t === 'library' ? 'Library' : t.charAt(0).toUpperCase() + t.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-3">
+          {addTab === 'upload' ? (
+            <div onDragOver={e => { e.preventDefault(); setDragging(true); }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={e => { e.preventDefault(); setDragging(false); handleAddFiles(e.dataTransfer.files); }}
+              onClick={() => !uploading && addInputRef.current?.click()}
+              className={`rounded-lg border-2 border-dashed flex items-center justify-center gap-3 py-5 cursor-pointer transition-colors ${dragging ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 hover:border-emerald-400 hover:bg-white'} ${uploading ? 'cursor-not-allowed opacity-75' : ''}`}>
+              {uploading
+                ? <><Loader2 className="h-5 w-5 text-emerald-600 animate-spin" /><span className="text-sm text-emerald-700 font-medium">Uploading...</span></>
+                : <><Upload className="h-5 w-5 text-emerald-500" /><span className="text-sm text-gray-600">Drop images or <span className="text-emerald-600 font-medium">browse</span></span><span className="text-xs text-gray-400">— select multiple at once</span></>
+              }
+              <input ref={addInputRef} type="file" accept="image/*" multiple className="hidden" onChange={e => handleAddFiles(e.target.files)} />
+            </div>
+          ) : addTab === 'url' ? (
+            <div className="flex gap-2">
+              <input type="url" value={urlInput} onChange={e => setUrlInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addUrl(); } }}
+                placeholder="Paste image URL and press Add"
+                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm" />
+              <button type="button" onClick={addUrl} disabled={!urlInput.trim()}
+                className="px-4 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50">
+                Add
+              </button>
+            </div>
+          ) : (
+            <button type="button" onClick={() => setShowAddPicker(true)}
+              className="w-full flex items-center justify-center gap-2 py-4 text-sm text-gray-600 hover:text-emerald-600 transition-colors">
+              <FolderOpen className="h-5 w-5" /> Pick from Media Library
+            </button>
+          )}
+
+          {uploadError && (
+            <div className="mt-2 flex items-center gap-2 text-red-600 text-xs">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" /> {uploadError}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {showAddPicker && (
         <MediaPickerModal
           multiSelect
           onSelect={() => {}}
-          onMultiSelect={urls => { onAddMultiple(urls); setShowPicker(false); }}
-          onClose={() => setShowPicker(false)}
+          onMultiSelect={urls => { onAddMultiple(urls); setShowAddPicker(false); }}
+          onClose={() => setShowAddPicker(false)}
         />
       )}
     </div>
   );
 }
-
 // ── Video uploader ───────────────────────────────────────────────────────────
 
 interface VideoUploaderProps {
@@ -624,6 +785,11 @@ export default function PropertyForm({ title, subtitle, initialData, onSubmit, l
                   set('additionalImages', [...formData.additionalImages, ...newUrls]);
                 }}
                 onRemove={i => set('additionalImages', formData.additionalImages.filter((_, idx) => idx !== i))}
+                onReplace={(i, url) => {
+                  const updated = [...formData.additionalImages];
+                  updated[i] = url;
+                  set('additionalImages', updated);
+                }}
               />
             </div>
 
