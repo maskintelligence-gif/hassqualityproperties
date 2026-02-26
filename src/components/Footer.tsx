@@ -1,8 +1,6 @@
-import { Building2, Mail, MapPin, Phone, Facebook, Instagram, Twitter, Youtube, Linkedin } from 'lucide-react';
+import { Building2, Mail, MapPin, Phone } from 'lucide-react';
 import WhatsAppIcon from './WhatsAppIcon';
-import TiktokIcon from './TiktokIcon';
 import CompanyLogo from './CompanyLogo';
-
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -23,26 +21,6 @@ export default function Footer() {
               Your trusted partner in finding the perfect property in Fort Portal Tourism City and across Uganda. 
               We specialize in residential, commercial, and land sales.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
-                <TiktokIcon className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
-                <Youtube className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-emerald-500 transition-colors">
-                <Linkedin className="h-5 w-5" />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}
