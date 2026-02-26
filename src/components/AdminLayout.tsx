@@ -1,7 +1,7 @@
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { LayoutDashboard, Building2, MessageSquare, Settings, LogOut, Menu, X, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Building2, MessageSquare, Settings, LogOut, Menu, X, ChevronRight, Image } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CompanyLogo from './CompanyLogo';
 
@@ -9,6 +9,7 @@ const navItems = [
   { path: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { path: '/admin/properties', label: 'Properties', icon: Building2, exact: false },
   { path: '/admin/users', label: 'Inquiries', icon: MessageSquare, exact: false },
+  { path: '/admin/media', label: 'Media', icon: Image, exact: false },
   { path: '/admin/settings', label: 'Settings', icon: Settings, exact: false },
 ];
 

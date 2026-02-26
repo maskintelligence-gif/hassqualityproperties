@@ -1,7 +1,8 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Save, Image as ImageIcon, X, Loader2, Upload, Link as LinkIcon, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, X, Loader2, Upload, Link as LinkIcon, CheckCircle2, AlertCircle, FolderOpen } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import MediaPickerModal from './MediaPickerModal';
 
 export interface PropertyFormData {
   title: string;
@@ -41,68 +42,46 @@ const CATEGORY_TYPES: Record<string, string[]> = {
 
 const BUCKET = 'property-images';
 
-// Upload a single file to Supabase Storage, return public URL
 async function uploadFile(file: File): Promise<string> {
   const ext = file.name.split('.').pop();
   const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-    cacheControl: '3600',
-    upsert: false,
-  });
+  const { error } = await supabase.storage.from(BUCKET).upload(path, file, { cacheControl: '3600', upsert: false });
   if (error) throw error;
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
-type UploadStatus = 'idle' | 'uploading' | 'done' | 'error';
+// ── Single image uploader (main image) ──────────────────────────────────────
 
-interface ImageSlot {
-  url: string;         // final public URL (empty while uploading)
-  preview: string;     // local object URL for preview
-  status: UploadStatus;
-  error?: string;
-}
-
-// Reusable image uploader component
 interface ImageUploaderProps {
   label: string;
   required?: boolean;
-  slot: ImageSlot | null;
+  currentUrl: string;
   onUpload: (url: string) => void;
   onClear: () => void;
-  urlTabValue: string;
-  onUrlTabChange: (v: string) => void;
 }
 
-function ImageUploader({ label, required, slot, onUpload, onClear, urlTabValue, onUrlTabChange }: ImageUploaderProps) {
-  const [tab, setTab] = useState<'upload' | 'url'>('upload');
+function ImageUploader({ label, required, currentUrl, onUpload, onClear }: ImageUploaderProps) {
+  const [tab, setTab] = useState<'upload' | 'url' | 'library'>('upload');
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [urlInput, setUrlInput] = useState(currentUrl || '');
+  const [showPicker, setShowPicker] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
     if (!file.type.startsWith('image/')) return;
-
     setUploading(true);
     try {
       const url = await uploadFile(file);
       onUpload(url);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Upload failed:', err);
     } finally {
       setUploading(false);
     }
   }, [onUpload]);
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragging(false);
-    handleFiles(e.dataTransfer.files);
-  };
-
-  const currentUrl = slot?.url || urlTabValue;
 
   return (
     <div>
@@ -110,28 +89,26 @@ function ImageUploader({ label, required, slot, onUpload, onClear, urlTabValue, 
         <label className="block text-sm font-medium text-gray-700">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
+        {/* Tab switcher */}
         <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
-          <button type="button" onClick={() => setTab('upload')}
-            className={`px-3 py-1 flex items-center gap-1 transition-colors ${tab === 'upload' ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
-            <Upload className="h-3 w-3" /> Upload
-          </button>
-          <button type="button" onClick={() => setTab('url')}
-            className={`px-3 py-1 flex items-center gap-1 transition-colors ${tab === 'url' ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
-            <LinkIcon className="h-3 w-3" /> URL
-          </button>
+          {(['upload', 'url', 'library'] as const).map(t => (
+            <button key={t} type="button" onClick={() => setTab(t)}
+              className={`px-3 py-1 flex items-center gap-1 capitalize transition-colors ${tab === t ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
+              {t === 'upload' && <Upload className="h-3 w-3" />}
+              {t === 'url' && <LinkIcon className="h-3 w-3" />}
+              {t === 'library' && <FolderOpen className="h-3 w-3" />}
+              {t === 'library' ? 'Library' : t.charAt(0).toUpperCase() + t.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
       {currentUrl && !uploading ? (
-        // Preview
         <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 group">
           <img src={currentUrl} alt="Preview" className="w-full h-48 object-cover" />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-          <button
-            type="button"
-            onClick={onClear}
-            className="absolute top-2 right-2 h-7 w-7 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
-          >
+          <button type="button" onClick={() => { onClear(); setUrlInput(''); }}
+            className="absolute top-2 right-2 h-7 w-7 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow">
             <X className="h-4 w-4" />
           </button>
           <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
@@ -139,22 +116,16 @@ function ImageUploader({ label, required, slot, onUpload, onClear, urlTabValue, 
           </div>
         </div>
       ) : uploading ? (
-        // Uploading state
         <div className="h-48 rounded-lg border-2 border-emerald-300 bg-emerald-50 flex flex-col items-center justify-center gap-3">
           <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
           <p className="text-sm text-emerald-700 font-medium">Uploading...</p>
         </div>
       ) : tab === 'upload' ? (
-        // Drop zone
-        <div
-          onDragOver={e => { e.preventDefault(); setDragging(true); }}
+        <div onDragOver={e => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
-          onDrop={handleDrop}
+          onDrop={e => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files); }}
           onClick={() => inputRef.current?.click()}
-          className={`h-48 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors ${
-            dragging ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50'
-          }`}
-        >
+          className={`h-48 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors ${dragging ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50'}`}>
           <div className="p-3 bg-white rounded-full shadow-sm text-emerald-600">
             <Upload className="h-6 w-6" />
           </div>
@@ -162,44 +133,62 @@ function ImageUploader({ label, required, slot, onUpload, onClear, urlTabValue, 
             <p className="text-sm font-medium text-gray-700">Drop image here or <span className="text-emerald-600">browse</span></p>
             <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP — up to 10MB</p>
           </div>
-          <input ref={inputRef} type="file" accept="image/*" className="hidden"
-            onChange={e => handleFiles(e.target.files)} />
+          <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={e => handleFiles(e.target.files)} />
         </div>
-      ) : (
-        // URL input tab
+      ) : tab === 'url' ? (
         <div className="space-y-2">
-          <input
-            type="url"
-            value={urlTabValue}
-            onChange={e => onUrlTabChange(e.target.value)}
+          <input type="url" value={urlInput} onChange={e => { setUrlInput(e.target.value); onUpload(e.target.value); }}
             placeholder="https://images.unsplash.com/..."
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm transition-all"
-          />
-          {urlTabValue && (
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm" />
+          {urlInput && (
             <div className="rounded-lg overflow-hidden border border-gray-200 h-32">
-              <img src={urlTabValue} alt="Preview" className="w-full h-full object-cover"
+              <img src={urlInput} alt="Preview" className="w-full h-full object-cover"
                 onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
             </div>
           )}
         </div>
+      ) : (
+        // Library tab
+        <div
+          onClick={() => setShowPicker(true)}
+          className="h-48 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors"
+        >
+          <div className="p-3 bg-white rounded-full shadow-sm text-emerald-600">
+            <FolderOpen className="h-6 w-6" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium text-gray-700">Pick from Media Library</p>
+            <p className="text-xs text-gray-400 mt-1">Choose from previously uploaded images</p>
+          </div>
+        </div>
+      )}
+
+      {showPicker && (
+        <MediaPickerModal
+          onSelect={url => { onUpload(url); setShowPicker(false); }}
+          onClose={() => setShowPicker(false)}
+        />
       )}
     </div>
   );
 }
 
-// Multi-image uploader
+// ── Multi image uploader (additional images) ────────────────────────────────
+
 interface MultiImageUploaderProps {
   images: string[];
   onAdd: (url: string) => void;
+  onAddMultiple: (urls: string[]) => void;
   onRemove: (i: number) => void;
 }
 
-function MultiImageUploader({ images, onAdd, onRemove }: MultiImageUploaderProps) {
+function MultiImageUploader({ images, onAdd, onAddMultiple, onRemove }: MultiImageUploaderProps) {
+  const [tab, setTab] = useState<'upload' | 'url' | 'library'>('upload');
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [urlInput, setUrlInput] = useState('');
-  const [tab, setTab] = useState<'upload' | 'url'>('upload');
   const [dragging, setDragging] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = useCallback(async (files: FileList | null) => {
@@ -207,9 +196,7 @@ function MultiImageUploader({ images, onAdd, onRemove }: MultiImageUploaderProps
     setUploadError(null);
     setUploading(true);
     try {
-      // Upload all selected files concurrently
-      const uploads = Array.from(files).map(f => uploadFile(f));
-      const urls = await Promise.all(uploads);
+      const urls = await Promise.all(Array.from(files).map(uploadFile));
       urls.forEach(url => onAdd(url));
     } catch (err: any) {
       setUploadError('Upload failed. Check your storage bucket settings.');
@@ -218,12 +205,6 @@ function MultiImageUploader({ images, onAdd, onRemove }: MultiImageUploaderProps
       if (inputRef.current) inputRef.current.value = '';
     }
   }, [onAdd]);
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragging(false);
-    handleFiles(e.dataTransfer.files);
-  };
 
   const addUrl = () => {
     const url = urlInput.trim();
@@ -237,53 +218,51 @@ function MultiImageUploader({ images, onAdd, onRemove }: MultiImageUploaderProps
           Additional Images <span className="text-gray-400 font-normal">(optional)</span>
         </label>
         <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
-          <button type="button" onClick={() => setTab('upload')}
-            className={`px-3 py-1 flex items-center gap-1 transition-colors ${tab === 'upload' ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
-            <Upload className="h-3 w-3" /> Upload
-          </button>
-          <button type="button" onClick={() => setTab('url')}
-            className={`px-3 py-1 flex items-center gap-1 transition-colors ${tab === 'url' ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
-            <LinkIcon className="h-3 w-3" /> URL
-          </button>
+          {(['upload', 'url', 'library'] as const).map(t => (
+            <button key={t} type="button" onClick={() => setTab(t)}
+              className={`px-3 py-1 flex items-center gap-1 capitalize transition-colors ${tab === t ? 'bg-emerald-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
+              {t === 'upload' && <Upload className="h-3 w-3" />}
+              {t === 'url' && <LinkIcon className="h-3 w-3" />}
+              {t === 'library' && <FolderOpen className="h-3 w-3" />}
+              {t === 'library' ? 'Library' : t.charAt(0).toUpperCase() + t.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
       {tab === 'upload' ? (
-        <div
-          onDragOver={e => { e.preventDefault(); setDragging(true); }}
+        <div onDragOver={e => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
-          onDrop={handleDrop}
+          onDrop={e => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files); }}
           onClick={() => !uploading && inputRef.current?.click()}
-          className={`rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 py-6 cursor-pointer transition-colors ${
-            dragging ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50'
-          } ${uploading ? 'cursor-not-allowed opacity-75' : ''}`}
-        >
-          {uploading ? (
-            <>
-              <Loader2 className="h-6 w-6 text-emerald-600 animate-spin" />
-              <p className="text-sm text-emerald-700 font-medium">Uploading images...</p>
-            </>
-          ) : (
-            <>
-              <Upload className="h-6 w-6 text-emerald-500" />
-              <p className="text-sm text-gray-600">Drop images here or <span className="text-emerald-600 font-medium">browse</span></p>
-              <p className="text-xs text-gray-400">Select multiple files at once</p>
-            </>
-          )}
-          <input ref={inputRef} type="file" accept="image/*" multiple className="hidden"
-            onChange={e => handleFiles(e.target.files)} />
+          className={`rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 py-6 cursor-pointer transition-colors ${dragging ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50'} ${uploading ? 'cursor-not-allowed opacity-75' : ''}`}>
+          {uploading
+            ? <><Loader2 className="h-6 w-6 text-emerald-600 animate-spin" /><p className="text-sm text-emerald-700 font-medium">Uploading...</p></>
+            : <><Upload className="h-6 w-6 text-emerald-500" /><p className="text-sm text-gray-600">Drop images here or <span className="text-emerald-600 font-medium">browse</span></p><p className="text-xs text-gray-400">Select multiple files at once</p></>
+          }
+          <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
         </div>
-      ) : (
+      ) : tab === 'url' ? (
         <div className="flex gap-2">
           <input type="url" value={urlInput} onChange={e => setUrlInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addUrl(); } }}
             placeholder="Paste image URL and press Add"
             className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm" />
           <button type="button" onClick={addUrl} disabled={!urlInput.trim()}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
             Add
           </button>
         </div>
+      ) : (
+        // Library tab
+        <button
+          type="button"
+          onClick={() => setShowPicker(true)}
+          className="w-full rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:border-emerald-400 hover:bg-emerald-50/50 flex items-center justify-center gap-3 py-5 cursor-pointer transition-colors"
+        >
+          <FolderOpen className="h-5 w-5 text-emerald-500" />
+          <span className="text-sm font-medium text-gray-700">Pick from Media Library</span>
+        </button>
       )}
 
       {uploadError && (
@@ -306,11 +285,20 @@ function MultiImageUploader({ images, onAdd, onRemove }: MultiImageUploaderProps
           ))}
         </div>
       )}
+
+      {showPicker && (
+        <MediaPickerModal
+          multiSelect
+          onSelect={() => {}}
+          onMultiSelect={urls => { onAddMultiple(urls); setShowPicker(false); }}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </div>
   );
 }
 
-// ─── Main Form ───────────────────────────────────────────────────────────────
+// ── Main Form ────────────────────────────────────────────────────────────────
 
 interface Props {
   title: string;
@@ -323,7 +311,6 @@ interface Props {
 
 export default function PropertyForm({ title, subtitle, initialData, onSubmit, loading, submitLabel }: Props) {
   const [formData, setFormData] = useState<PropertyFormData>({ ...EMPTY_FORM, ...initialData });
-  const [mainImageUrlTab, setMainImageUrlTab] = useState(initialData?.imageUrl || '');
 
   const isVehicle = formData.category === 'Vehicles' || formData.category === 'Motorcycles';
   const isRealEstate = formData.category === 'Real Estate' || formData.category === 'Rentals';
@@ -333,8 +320,7 @@ export default function PropertyForm({ title, subtitle, initialData, onSubmit, l
     setFormData(prev => {
       const next = { ...prev, [field]: value };
       if (field === 'category') {
-        const types = CATEGORY_TYPES[value] || [];
-        next.type = types[0] || '';
+        next.type = (CATEGORY_TYPES[value] || [])[0] || '';
       }
       return next;
     });
@@ -342,16 +328,11 @@ export default function PropertyForm({ title, subtitle, initialData, onSubmit, l
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Use URL tab value if no uploaded image
-    const finalData = {
-      ...formData,
-      imageUrl: formData.imageUrl || mainImageUrlTab,
-    };
-    if (!finalData.imageUrl) {
-      alert('Please add a main image (upload a file or paste a URL).');
+    if (!formData.imageUrl) {
+      alert('Please add a main image.');
       return;
     }
-    onSubmit(finalData);
+    onSubmit(formData);
   };
 
   const inputClass = "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-sm";
@@ -456,40 +437,20 @@ export default function PropertyForm({ title, subtitle, initialData, onSubmit, l
           <div className={sectionClass}>
             <h2 className="text-base font-semibold text-gray-900 mb-5">Vehicle Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div>
-                <label className={labelClass}>Make</label>
-                <input type="text" value={formData.make} onChange={e => set('make', e.target.value)}
-                  placeholder="e.g. Toyota" className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Model</label>
-                <input type="text" value={formData.model} onChange={e => set('model', e.target.value)}
-                  placeholder="e.g. Land Cruiser Prado" className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Year</label>
-                <input type="number" value={formData.year} onChange={e => set('year', e.target.value)}
-                  placeholder="e.g. 2020" className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Mileage</label>
-                <input type="text" value={formData.mileage} onChange={e => set('mileage', e.target.value)}
-                  placeholder="e.g. 85,000 km" className={inputClass} />
-              </div>
+              <div><label className={labelClass}>Make</label><input type="text" value={formData.make} onChange={e => set('make', e.target.value)} placeholder="e.g. Toyota" className={inputClass} /></div>
+              <div><label className={labelClass}>Model</label><input type="text" value={formData.model} onChange={e => set('model', e.target.value)} placeholder="e.g. Land Cruiser Prado" className={inputClass} /></div>
+              <div><label className={labelClass}>Year</label><input type="number" value={formData.year} onChange={e => set('year', e.target.value)} placeholder="e.g. 2020" className={inputClass} /></div>
+              <div><label className={labelClass}>Mileage</label><input type="text" value={formData.mileage} onChange={e => set('mileage', e.target.value)} placeholder="e.g. 85,000 km" className={inputClass} /></div>
               <div>
                 <label className={labelClass}>Transmission</label>
                 <select value={formData.transmission} onChange={e => set('transmission', e.target.value)} className={inputClass}>
-                  <option>Automatic</option>
-                  <option>Manual</option>
+                  <option>Automatic</option><option>Manual</option>
                 </select>
               </div>
               <div>
                 <label className={labelClass}>Fuel Type</label>
                 <select value={formData.fuelType} onChange={e => set('fuelType', e.target.value)} className={inputClass}>
-                  <option>Petrol</option>
-                  <option>Diesel</option>
-                  <option>Electric</option>
-                  <option>Hybrid</option>
+                  <option>Petrol</option><option>Diesel</option><option>Electric</option><option>Hybrid</option>
                 </select>
               </div>
             </div>
@@ -499,23 +460,22 @@ export default function PropertyForm({ title, subtitle, initialData, onSubmit, l
         {/* Media */}
         <div className={sectionClass}>
           <h2 className="text-base font-semibold text-gray-900 mb-6">Images</h2>
-
           <div className="space-y-6">
-            {/* Main image */}
             <ImageUploader
               label="Main Image"
               required
-              slot={formData.imageUrl ? { url: formData.imageUrl, preview: formData.imageUrl, status: 'done' } : null}
+              currentUrl={formData.imageUrl}
               onUpload={url => set('imageUrl', url)}
-              onClear={() => { set('imageUrl', ''); setMainImageUrlTab(''); }}
-              urlTabValue={mainImageUrlTab}
-              onUrlTabChange={v => { setMainImageUrlTab(v); set('imageUrl', v); }}
+              onClear={() => set('imageUrl', '')}
             />
-
             <div className="border-t border-gray-100 pt-6">
               <MultiImageUploader
                 images={formData.additionalImages}
                 onAdd={url => set('additionalImages', [...formData.additionalImages, url])}
+                onAddMultiple={urls => {
+                  const newUrls = urls.filter(u => !formData.additionalImages.includes(u));
+                  set('additionalImages', [...formData.additionalImages, ...newUrls]);
+                }}
                 onRemove={i => set('additionalImages', formData.additionalImages.filter((_, idx) => idx !== i))}
               />
             </div>
