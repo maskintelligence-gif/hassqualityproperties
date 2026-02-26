@@ -1,6 +1,5 @@
-import { Mail, MapPin, Phone, Send, Facebook, Instagram, Twitter, Youtube, Linkedin, ExternalLink, Loader2, CheckCircle2 } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, ExternalLink, Loader2, CheckCircle2 } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
-import TiktokIcon from '../components/TiktokIcon';
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { supabase } from '../lib/supabase';
 
@@ -138,6 +137,10 @@ export default function Contact() {
                 </div>
               </div>
 
+              {/* Follow Us section completely removed */}
+            </div>
+          </div>
+
           {/* Contact Form */}
           <div>
             <div className="bg-white border border-gray-100 rounded-2xl p-8 md:p-12 shadow-lg">
@@ -238,3 +241,4 @@ export default function Contact() {
       </div>
     </div>
   );
+}
