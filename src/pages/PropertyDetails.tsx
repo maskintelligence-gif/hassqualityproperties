@@ -29,7 +29,7 @@ export default function PropertyDetails() {
 
         if (error) throw error;
         if (data) {
-          const mapped = { ...data, imageUrl: data.image_url, bedrooms: data.beds, bathrooms: data.baths };
+          const mapped = { ...data, imageUrl: data.image_url, bedrooms: data.beds, bathrooms: data.baths, videoUrl: data.video_url, images: data.images || [] };
           setProperty(mapped);
           
           // Fetch similar properties
