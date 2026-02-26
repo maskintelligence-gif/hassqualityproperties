@@ -138,32 +138,6 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="mt-12">
-                <h3 className="font-semibold text-gray-900 text-lg mb-4">Follow Us</h3>
-                <div className="flex flex-wrap gap-4">
-                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm hover:bg-emerald-600 hover:text-white transition-all">
-                    <Facebook className="h-5 w-5" />
-                  </a>
-                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm hover:bg-emerald-600 hover:text-white transition-all">
-                    <Instagram className="h-5 w-5" />
-                  </a>
-                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm hover:bg-emerald-600 hover:text-white transition-all">
-                    <Twitter className="h-5 w-5" />
-                  </a>
-                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm hover:bg-emerald-600 hover:text-white transition-all">
-                    <TiktokIcon className="h-5 w-5" />
-                  </a>
-                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm hover:bg-emerald-600 hover:text-white transition-all">
-                    <Youtube className="h-5 w-5" />
-                  </a>
-                  <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-600 shadow-sm hover:bg-emerald-600 hover:text-white transition-all">
-                    <Linkedin className="h-5 w-5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Contact Form */}
           <div>
             <div className="bg-white border border-gray-100 rounded-2xl p-8 md:p-12 shadow-lg">
