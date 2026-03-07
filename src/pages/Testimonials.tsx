@@ -26,7 +26,7 @@ export default function Testimonials() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a 
-              href="https://wa.me/25677186354?text=Hello!%20I%20would%20like%20to%20share%20my%20testimonial%20about%20my%20experience%20with%20Hass%20Quality%20Properties."
+              href="https://wa.me/256771863542?text=Hello!%20I%20would%20like%20to%20share%20my%20testimonial%20about%20my%20experience%20with%20Hass%20Quality%20Properties."
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-500 text-white rounded-full font-bold hover:bg-green-600 transition-colors shadow-sm"
