@@ -55,7 +55,7 @@ export default function Navbar() {
               Get in Touch
             </Link>
             <a
-              href="https://wa.me/25677186354"
+              href="https://wa.me/256771863542"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-green-500 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-green-600 transition-colors shadow-sm flex items-center gap-2"
@@ -95,7 +95,7 @@ export default function Navbar() {
               </Link>
             ))}
             <a
-              href="https://wa.me/25677186354"
+              href="https://wa.me/256771863542"
               target="_blank"
               rel="noopener noreferrer"
               className="block px-3 py-2 rounded-md text-base font-medium bg-green-500 text-white hover:bg-green-600 transition-colors mt-2"
