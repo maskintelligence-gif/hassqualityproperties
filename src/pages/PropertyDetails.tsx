@@ -400,7 +400,7 @@ export default function PropertyDetails() {
                     type="tel" 
                     id="phone"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                    placeholder="+256 771 86354"
+                    placeholder="+256 771 863542"
                   />
                 </div>
                 <div>
@@ -427,13 +427,13 @@ export default function PropertyDetails() {
 
               <div className="space-y-3">
                 <a 
-                  href="tel:+25677186354"
+                  href="tel:+256771863542"
                   className="flex items-center justify-center gap-3 w-full py-3 bg-gray-50 text-gray-700 rounded-lg font-semibold hover:bg-gray-100 transition-colors border border-gray-200"
                 >
                   <Phone className="h-5 w-5" /> Call Agent
                 </a>
                 <a 
-                  href="https://wa.me/25677186354"
+                  href="https://wa.me/256771863542"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-3 w-full py-3 bg-green-50 text-green-700 rounded-lg font-semibold hover:bg-green-100 transition-colors border border-green-200"
