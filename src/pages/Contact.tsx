@@ -107,7 +107,7 @@ export default function Contact() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 text-lg mb-1">Call Us</h3>
-                    <p className="text-gray-600">+256 771 86354</p>
+                    <p className="text-gray-600">+256 771 863542</p>
                     <p className="text-gray-500 text-sm mt-1 mb-3">Mon - Sat: 8:00 AM - 6:00 PM</p>
                     <a
                       href="tel:+256771863542"
@@ -124,7 +124,7 @@ export default function Contact() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 text-lg mb-1">WhatsApp Us</h3>
-                    <p className="text-gray-600 break-all mb-3">+256 771 86354</p>
+                    <p className="text-gray-600 break-all mb-3">+256 771 863542</p>
                     <a
                       href="https://wa.me/256771863542"
                       target="_blank"
