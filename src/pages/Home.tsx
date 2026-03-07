@@ -85,7 +85,7 @@ export default function Home() {
               Contact Us
             </Link>
             <a
-              href="https://wa.me/25677186354"
+              href="https://wa.me/256771863542"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-4 bg-green-500 hover:bg-green-600 text-white rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
